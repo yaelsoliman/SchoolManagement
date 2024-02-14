@@ -10,11 +10,16 @@ using SchoolManagement.Infrastructure.Data;
 using SchoolManagement.Infrastructure.Repository;
 using SchoolManagement.Infrastructure.Seed;
 using SchoolManagement.Infrastructure.Service;
+using Serilog;
 using Shared.Common;
 using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+configuration.ReadFrom.Configuration(context.Configuration));
+
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Add services to the container.
@@ -50,7 +55,7 @@ builder.Services.AddAuthentication(options =>
          ValidateLifetime = true,
          ValidIssuer = builder.Configuration["JWT:Issuer"],
          ValidAudience = builder.Configuration["JWT:Audience"],
-         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
 
      };
  });
@@ -97,13 +102,34 @@ catch (Exception ex)
 }
 
 
+//var config = new ConfigurationBuilder()
+//               .AddJsonFile("appsettings.json")
+//               .Build();
+//Log.Logger = new LoggerConfiguration()
+//                .ReadFrom.Configuration(config)
+//                .CreateLogger();
+//try
+//{
+//    Log.Information("Application Starting");
+
+//}
+//catch (Exception ex)
+//{
+
+//    Log.Fatal(ex, "The application failed to start!");
+//}
+//finally
+//{
+//    Log.CloseAndFlush();
+//}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

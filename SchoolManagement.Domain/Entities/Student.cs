@@ -13,7 +13,7 @@ namespace SchoolManagement.Domain.Entities
 {
     public class Student : BaseEntity
     {
-        private string address;
+        //private string address;
 
         [RegularExpression(@"^[A-Z]+[a-zA-Z]*$",ErrorMessage ="First Name must contain only letters and Capital letter at the first")]
         [StringLength(15,MinimumLength =3)]
